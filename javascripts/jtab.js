@@ -998,6 +998,9 @@ jtab.render = function (element,notation_text) {
     canvas.render_token(tokens[i]);
   }
   jQuery(element).addClass('rendered');
+  if (jQuery(element).hasClass("shrink")){
+    jQuery(element).css('zoom','0.7');
+  }
 }
 
 // Render all nodes with class 'jtab'.
