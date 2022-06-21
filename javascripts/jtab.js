@@ -550,6 +550,7 @@ jtabChord.prototype.shiftChordArray = function(atFret,modelChord) { // shift cho
 //
 
 Raphael.fn.tabtype = 0;  // 0 = none, 1 = tab & chord, 2 = chord, 3 = tab
+Raphael.fn.fret_label_type = 0; // 0 = Arabic, 1 = Roman
 Raphael.fn.has_chord = false;
 Raphael.fn.has_tab = false;
 
@@ -620,10 +621,12 @@ Raphael.fn.svg_params = function(x,y,l1,l2) {
 Raphael.fn.chord_fretboard = function ( position, chord_name ) {
   var fret_left = this.current_offset + this.margin_left;
   // conventional fret labels
-  var fret_labels = [ '', '', '', 'III', '', 'V', '', 'VII', '', 'IX', '', '', 'XII', '', '', 'XV', '', 'XVII', '', 'XIX', '', 'XXI', '' ];
-  // alternative friendly fret labels. Currently disabled, maybe bring these back as a configurable option?
-  // var fret_labels = [ '', '1fr', '2fr', '3fr', '4fr', '5fr', '6fr', '7fr', '8fr', '9fr', '10fr', '11fr', '12fr', '13fr', '14fr', '15fr', '16fr', '17fr', '18fr', '19fr', '20fr', '21fr', '' ];
-
+  var fret_labels = [ '', '1', '2', '3', '4', '5', '6', "7", '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22' ];
+// alternative friendly fret labels. Currently disabled, maybe bring these back as a configurable option?
+  if (Raphael.fn.fret_label_type == 1){
+    var fret_labels = [ '', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX', 'XXI', 'XXII' ];
+    // var fret_labels = [ '', '1fr', '2fr', '3fr', '4fr', '5fr', '6fr', '7fr', '8fr', '9fr', '10fr', '11fr', '12fr', '13fr', '14fr', '15fr', '16fr', '17fr', '18fr', '19fr', '20fr', '21fr', '' ];
+  }
   this.text( // chord name
     fret_left + 2.5 * this.string_spacing,
     this.margin_top - 20,
@@ -637,7 +640,11 @@ Raphael.fn.chord_fretboard = function ( position, chord_name ) {
 
     this.path(this.svg_params(fret_left,this.margin_top + (i * this.fret_spacing),this.string_spacing * (this.strings_drawn - 1), 0))
 
-    pos = ( fret_labels[ position + i ] === undefined ) ? '' : fret_labels[ position + i ];
+    let pos = ( fret_labels[ position + i ] === undefined ) ? '' : fret_labels[ position + i ];
+
+    if( stroke_width == 3  || i != 1 ) {
+        pos = "" 
+    }
 
     if ( pos.length > 0 ) { // draw fret position
       this.text(
@@ -972,6 +979,16 @@ jtab.setPalette = function (element) {
   Raphael.fn.fingering_text_color = bgColor;
 }
 
+// choose flet type
+jtab.getFretLabelType = function (element){
+  let fretLabelType =  jQuery(element).hasClass("roman")
+  if (!fretLabelType){
+    Raphael.fn.fret_label_type = 0;
+    return
+  }
+  Raphael.fn.fret_label_type = 1
+}
+
 // Render the tab for a given +element+.
 // +element+ is a DOM node
 // +notation_text+ is the optional notation to render (if not specified, +element+ text content will be used)
@@ -990,6 +1007,7 @@ jtab.render = function (element,notation_text) {
 
   jQuery(element).html(canvas_holder);
   jtab.setPalette(element);
+  jtab.getFretLabelType(element);
   canvas = Raphael(rndID, 80, Raphael.fn.total_height );
   canvas.tab_start();
 
